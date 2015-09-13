@@ -24,8 +24,9 @@ Bounds.prototype.contains = function( bounds ) {
   );
 };
 
-function QuadLeaf( bounds ) {
+function QuadLeaf( bounds, parent ) {
   this.bounds = bounds;
+  this.parent = parent;
 
   this.children = [];
 }
@@ -36,7 +37,7 @@ QuadLeaf.prototype.addChild = function( child ) {
 
 QuadLeaf.prototype.toTree = function() {
   var midX, midY, bounds1, bounds2, bounds3, bounds4, children, quadLeaf1,
-      quadLeaf2, quadLeaf3, quadLeaf4
+      quadLeaf2, quadLeaf3, quadLeaf4, quadTree
   ;
   
   midX = ( this.bounds.x1 + this.bounds.x2 ) / 2;
@@ -107,14 +108,23 @@ QuadLeaf.prototype.toTree = function() {
     }
   });
 
-  return new QuadTree(
+  quadTree = new QuadTree(
     this.bounds,
+    undefined,
     quadLeaf1,
     quadLeaf2,
     quadLeaf3,
     quadLeaf4
   );
 
+  quadTree.parent = this.parent;
+
+  quadLeaf1.parent = quadTree;
+  quadLeaf2.parent = quadTree;
+  quadLeaf3.parent = quadTree;
+  quadLeaf4.parent = quadTree;
+
+  return quadTree;
 };
 
 // quadLeaf positions:
@@ -122,8 +132,10 @@ QuadLeaf.prototype.toTree = function() {
 // quadLeaf1 | quadLeaf2
 // ----------|----------
 // quadLeaf3 | quadLeaf4
-function QuadTree( bounds, quadLeaf1, quadLeaf2, quadLeaf3, quadLeaf4 ) {
+function QuadTree(  bounds, parent, quadLeaf1,
+                    quadLeaf2, quadLeaf3, quadLeaf4 ) {
   this.bounds = bounds;
+  this.parent = parent;
 
   this.quadLeaf1 = quadLeaf1;
   this.quadLeaf2 = quadLeaf2;
