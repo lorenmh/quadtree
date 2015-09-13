@@ -31,7 +31,14 @@ function QuadLeaf( bounds, parent ) {
   this.children = [];
 }
 
-QuadLeaf.prototype.addChild = function( child ) {
+QuadLeaf.prototype.intersects = function( obj ) {
+  return (
+    this.bounds.contains( obj.bounds ) ||
+    obj.bounds.contains( this.bounds )
+  );
+};
+
+QuadLeaf.prototype.insert = function( child ) {
   this.children.push( child );
 };
 
@@ -79,32 +86,20 @@ QuadLeaf.prototype.toTree = function() {
   quadLeaf4 = new QuadLeaf( bounds4 );
 
   this.children.forEach( function( child ) {
-    if (
-        quadLeaf1.bounds.contains( child.bounds ) ||
-        child.bounds.contains( quadLeaf1.bounds )
-      ) {
-      quadLeaf1.addChild( child );
+    if ( quadLeaf1.intersect( child ) ) {
+      quadLeaf1.insert( child );
     }
 
-    if (
-        quadLeaf2.bounds.contains( child.bounds ) ||
-        child.bounds.contains( quadLeaf2.bounds )
-      ) {
-      quadLeaf2.addChild( child );
+    if ( quadLeaf2.intersect( child ) ) {
+      quadLeaf2.insert( child );
     }
 
-    if (
-        quadLeaf3.bounds.contains( child.bounds ) ||
-        child.bounds.contains( quadLeaf3.bounds )
-      ) {
-      quadLeaf3.addChild( child );
+    if ( quadLeaf3.intersect( child ) ) {
+      quadLeaf3.insert( child );
     }
 
-    if (
-        quadLeaf4.bounds.contains( child.bounds ) ||
-        child.bounds.contains( quadLeaf4.bounds )
-      ) {
-      quadLeaf4.addChild( child );
+    if ( quadLeaf4.intersect( child ) ) {
+      quadLeaf4.insert( child );
     }
   });
 
@@ -132,18 +127,55 @@ QuadLeaf.prototype.toTree = function() {
 // quadLeaf1 | quadLeaf2
 // ----------|----------
 // quadLeaf3 | quadLeaf4
-function QuadTree(  bounds, parent, quadLeaf1,
-                    quadLeaf2, quadLeaf3, quadLeaf4 ) {
+function QuadTree(  bounds, parent,
+                    node1, node2, node3, node4 ) {
   this.bounds = bounds;
   this.parent = parent;
 
-  this.quadLeaf1 = quadLeaf1;
-  this.quadLeaf2 = quadLeaf2;
-  this.quadLeaf3 = quadLeaf3;
-  this.quadLeaf4 = quadLeaf4;
+  this.node1 = node1;
+  this.node2 = node2;
+  this.node3 = node3;
+  this.node4 = node4;
 }
 
-// we assume that the point is within the QuadTree bounds
-QuadTree.prototype.insert = function( point ) {
+QuadTree.prototype.intersects = function( obj ) {
+  return (
+    this.bounds.contains( obj.bounds ) ||
+    obj.bounds.contains( this.bounds )
+  );
+};
 
+// we assume that the point is within the QuadTree bounds
+QuadTree.prototype.insert = function( obj ) {
+  if ( this.node1.intersects( obj ) ) {
+    this.node1.insert( obj );
+    if (  this.node1 instanceof QuadLeaf &&
+          this.node1.children.length > MAX_CHILDREN ) {
+      this.node1 = this.node1.toTree();
+    }
+  }
+
+  if ( this.node2.intersects( obj ) ) {
+    this.node2.insert( obj );
+    if (  this.node2 instanceof QuadLeaf &&
+          this.node2.children.length > MAX_CHILDREN ) {
+      this.node2 = this.node2.toTree();
+    }
+  }
+
+  if ( this.node3.intersects( obj ) ) {
+    this.node3.insert( obj );
+    if (  this.node3 instanceof QuadLeaf &&
+          this.node3.children.length > MAX_CHILDREN ) {
+      this.node3 = this.node3.toTree();
+    }
+  }
+
+  if ( this.node4.intersects( obj ) ) {
+    this.node4.insert( obj );
+    if (  this.node4 instanceof QuadLeaf &&
+          this.node4.children.length > MAX_CHILDREN ) {
+      this.node4 = this.node4.toTree();
+    }
+  }
 };
