@@ -3,7 +3,7 @@ var MAX_CHILDREN = 10
 
 // point is any object that has an x / y coord
 
-// Node is a bounded object
+// quadLeaf is a bounded object
 // x1, y1 === top left bounding point
 // x2, y2 === bottom right bounding point
 function Bounds( x1, y1, x2, y2 ) {
@@ -42,7 +42,7 @@ QuadLeaf.prototype.toTree = function() {
   midX = ( this.bounds.x1 + this.bounds.x2 ) / 2;
   midY = ( this.bounds.y1 + this.bounds.y2 ) / 2;
   
-  // bounds for node1
+  // bounds for quadLeaf1
   bounds1 = new Bounds(
     this.bounds.x1,
     this.bounds.y1,
@@ -50,7 +50,7 @@ QuadLeaf.prototype.toTree = function() {
     midY
   );
 
-  // bounds for node2
+  // bounds for quadLeaf2
   bounds2 = new Bounds(
     midX,
     this.bounds.y1,
@@ -107,20 +107,28 @@ QuadLeaf.prototype.toTree = function() {
     }
   });
 
+  return new QuadTree(
+    this.bounds,
+    quadLeaf1,
+    quadLeaf2,
+    quadLeaf3,
+    quadLeaf4
+  );
+
 };
 
-// node positions:
+// quadLeaf positions:
 //
-// node1 | node2
-// ------|------
-// node3 | node4
-function QuadTree( bounds, node1, node2, node3, node4 ) {
+// quadLeaf1 | quadLeaf2
+// ----------|----------
+// quadLeaf3 | quadLeaf4
+function QuadTree( bounds, quadLeaf1, quadLeaf2, quadLeaf3, quadLeaf4 ) {
   this.bounds = bounds;
 
-  this.node1 = node1;
-  this.node2 = node2;
-  this.node3 = node3;
-  this.node4 = node4;
+  this.quadLeaf1 = quadLeaf1;
+  this.quadLeaf2 = quadLeaf2;
+  this.quadLeaf3 = quadLeaf3;
+  this.quadLeaf4 = quadLeaf4;
 }
 
 // we assume that the point is within the QuadTree bounds
