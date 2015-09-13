@@ -44,7 +44,7 @@ QuadLeaf.prototype.insert = function( child ) {
 
 QuadLeaf.prototype.toTree = function() {
   var midX, midY, bounds1, bounds2, bounds3, bounds4, children, quadLeaf1,
-      quadLeaf2, quadLeaf3, quadLeaf4, quadTree
+      quadLeaf2, quadLeaf3, quadLeaf4, quadNode
   ;
   
   midX = ( this.bounds.x1 + this.bounds.x2 ) / 2;
@@ -103,7 +103,7 @@ QuadLeaf.prototype.toTree = function() {
     }
   });
 
-  quadTree = new QuadTree(
+  quadNode = new QuadNode(
     this.bounds,
     undefined,
     quadLeaf1,
@@ -112,14 +112,14 @@ QuadLeaf.prototype.toTree = function() {
     quadLeaf4
   );
 
-  quadTree.parent = this.parent;
+  quadNode.parent = this.parent;
 
-  quadLeaf1.parent = quadTree;
-  quadLeaf2.parent = quadTree;
-  quadLeaf3.parent = quadTree;
-  quadLeaf4.parent = quadTree;
+  quadLeaf1.parent = quadNode;
+  quadLeaf2.parent = quadNode;
+  quadLeaf3.parent = quadNode;
+  quadLeaf4.parent = quadNode;
 
-  return quadTree;
+  return quadNode;
 };
 
 // quadLeaf positions:
@@ -127,7 +127,7 @@ QuadLeaf.prototype.toTree = function() {
 // quadLeaf1 | quadLeaf2
 // ----------|----------
 // quadLeaf3 | quadLeaf4
-function QuadTree(  bounds, parent,
+function QuadNode(  bounds, parent,
                     node1, node2, node3, node4 ) {
   this.bounds = bounds;
   this.parent = parent;
@@ -138,15 +138,15 @@ function QuadTree(  bounds, parent,
   this.node4 = node4;
 }
 
-QuadTree.prototype.intersects = function( obj ) {
+QuadNode.prototype.intersects = function( obj ) {
   return (
     this.bounds.contains( obj.bounds ) ||
     obj.bounds.contains( this.bounds )
   );
 };
 
-// we assume that the point is within the QuadTree bounds
-QuadTree.prototype.insert = function( obj ) {
+// we assume that the point is within the QuadNode bounds
+QuadNode.prototype.insert = function( obj ) {
   if ( this.node1.intersects( obj ) ) {
     this.node1.insert( obj );
     if (  this.node1 instanceof QuadLeaf &&
